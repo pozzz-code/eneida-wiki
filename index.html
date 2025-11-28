@@ -811,48 +811,61 @@
 
         
 
-    </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Вибираємо всі посилання в секції словника, які ведуть у поему
-            const tableLinks = document.querySelectorAll('.glossary-section a[href$="-ref"]');
 
-            tableLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault(); 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Посилання з таблиці → у текст (у вас вже є)
+        const tableLinks = document.querySelectorAll('.glossary-section a[href$="-ref"]');
 
-                    const targetId = this.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-
-                    if (targetElement) {
-                        
-                        // 1. Центрування елемента на екрані
-                        targetElement.scrollIntoView({
-                            behavior: 'smooth', 
-                            block: 'center'    
-                        });
-
-                        // 2. Очищуємо старі підсвічування, якщо вони є
-                        document.querySelectorAll('.highlight').forEach(el => {
-                            el.classList.remove('highlight');
-                        });
-                        
-                        // 3. Додаємо клас для підсвічування до цільового елемента
-                        targetElement.classList.add('highlight');
-                        
-                        // 4. Оновлюємо хеш в URL, щоб кнопка "Назад" працювала коректно
-                        // Використовуємо replaceState, щоб уникнути зайвих записів в історії
-                        history.replaceState(null, null, targetId);
-                        
-                        // 5. Встановлюємо таймер, щоб підсвічування автоматично зникло через 5 секунд
-                        setTimeout(() => {
-                            targetElement.classList.remove('highlight');
-                        }, 5000); 
-                    }
-                });
+        tableLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                scrollAndHighlight(this.getAttribute('href'));
             });
         });
-    </script>
+
+        // 2. НОВЕ: Посилання з тексту поеми → у таблицю словника
+        const poemLinks = document.querySelectorAll('.poem-content a[id$="-ref"]');
+
+        poemLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href'); // наприклад #suchadochka
+                scrollAndHighlight(targetId);
+            });
+        });
+
+        // Окрема функція, щоб не дублювати код
+        function scrollAndHighlight(targetId) {
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+                // Прокручуємо так, щоб рядок був по центру екрану
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
+                // Прибираємо попереднє підсвічування
+                document.querySelectorAll('.highlight').forEach(el => {
+                    el.classList.remove('highlight');
+                });
+
+                // Додаємо підсвітку
+                targetElement.classList.add('highlight');
+
+                // Оновлюємо URL (щоб кнопка «Назад» працювала)
+                history.replaceState(null, null, targetId);
+
+                // Прибираємо підсвітку через 5 секунд
+                setTimeout(() => {
+                    targetElement.classList.remove('highlight');
+                }, 3000);
+            }
+        }
+    });
+</script>
 </body>
 </html>
